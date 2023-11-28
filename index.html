@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/style2.css">
+    <title>M/M/1 Queue Model</title>
+</head>
+<body>
+    <h1 class="ti">TEORIA DE COLAS</h1>
+    <div class="cola">
+       <p class="cola1">
+          La teoría de colas analiza cómo se forman y comportan las filas de espera, modelando llegadas 
+          aleatorias de elementos a un sistema limitado, como clientes en un servicio. Utiliza matemáticas
+          para medir la longitud, el tiempo de espera y la eficiencia de sistemas con capacidad limitada
+          para atender. Aplicable en múltiples campos para mejorar la gestión y el rendimiento
+          de sistemas con colas.
+       </p>
+    </div>
+    
+<div class="contenido">
+    
+    
+    <div class="container">
+       
+        <!-- Input fields for λ and μ -->
+        <h1>Calculadora M/M/1</h1>
+        <label for="arrivalRate">Tasa de llegada (λ): </label>
+        <input type="number" id="arrivalRate" step="0.1" placeholder="Por hora">
+        
+        <label for="serviceRate">Tasa de servicio (μ): </label>
+        <input type="number" id="serviceRate" step="0.1" placeholder="Servicio por hora">
+
+        <!-- Button to calculate -->
+          <div class="boton1">
+           <center> <button onclick="calculateMetrics()">Calcular</button></center>
+         </div>
+        <!-- Results display area -->
+        <div id="results"></div>
+
+        
+    </div>
+
+    <div id="input-container">
+        
+        <h1>Teoría de Colas M/M/s</h1>
+        <label for="arrival-rate">Tasa de llegada (λ):</label>
+        <input type="number" id="arrival-rate"  step="0.1" placeholder="Por hora" required>
+
+        <label for="service-rate">Tasa de servicio por servidor (μ):</label>
+        <input type="number" id="service-rate" placeholder="Servicio por hora" required>
+
+        <label for="num-servers">Número de servidores (s):</label>
+        <input type="number" id="num-servers" placeholder="Número de servidores" required>
+
+        <label for="cost-per-server">Costo por servidor:</label>
+        <input type="number" id="cost-per-server" placeholder="Costo por servidor" >
+
+        <label for="waiting-cost">Costo de espera</label>
+        <input type="number" id="waiting-cost" placeholder="Costo de espera por camión" >
+
+       <center> <button  onclick="calculate()">Calcular</button></center>
+    </div>
+
+    <div id="output-container">
+        <p id="result-message"></p>
+    </div>
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+       <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div id="modal-content"></div>
+      </div>
+     </div>
+  
+</div>
+    <script src="js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+</body>
+</html>
