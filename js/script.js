@@ -2,8 +2,8 @@ function calculateMetrics() {
     // Get input values arrivalRate landa y service rate mu
     const arrivalRate = parseFloat(document.getElementById('arrivalRate').value);
     const serviceRate = parseFloat(document.getElementById('serviceRate').value);
-    if (arrivalRate>serviceRate){
-      return;  
+    if (arrivalRate > serviceRate) {
+        return;
     }
     // Check if input values are valid
     if (isNaN(arrivalRate) || isNaN(serviceRate) || arrivalRate <= 0 || serviceRate <= 0) {
@@ -16,9 +16,10 @@ function calculateMetrics() {
     const emptySystemProbability = 1 - utilization;
     const oneCustomerProbability = utilization * (1 - utilization);
     const expectedCustomersInQueue = (utilization * utilization) / (1 - utilization);
-    const expectedCustomersInSystem = utilization / (1 - utilization);// L
+    const expectedCustomersInSystem = utilization / (1 - utilization); // L
     const expectedTimeInQueue = expectedCustomersInQueue / arrivalRate;
     const expectedTimeInSystem = expectedCustomersInSystem / arrivalRate;
+    const pw = arrivalRate / serviceRate;
 
     // Display results in modal
     displayResults(`
@@ -30,50 +31,67 @@ function calculateMetrics() {
         <p>Número esperado de clientes en el sistema (L): ${expectedCustomersInSystem.toFixed(4)}</p>
         <p>Tiempo esperado de clientes en la cola (Wq): ${expectedTimeInQueue.toFixed(4)} horas</p>
         <p>Tiempo esperado de clientes en el sistema (W): ${expectedTimeInSystem.toFixed(4)} horas</p>
+        <p>Probabilidad de que una unidad que llega no tenga que esperar (Pw): ${pw.toFixed(4)}</p>
     `);
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function calculate() {
     // Obtener valores de entrada
-    const arrivalRate = parseFloat(document.getElementById('arrival-rate').value);//landa 
-    const serviceRate = parseFloat(document.getElementById('service-rate').value);// mu 
-    const numServers = parseInt(document.getElementById('num-servers').value);// numero de servidores
-    const costPerServer = parseFloat(document.getElementById('cost-per-server').value);
-    const waitingCost = parseFloat(document.getElementById('waiting-cost').value);
+    const arrivalRate = parseFloat(document.getElementById('arrival-rate').value);
+    const serviceRate = parseFloat(document.getElementById('service-rate').value);
+    const numServers = parseInt(document.getElementById('num-servers').value);
 
-    // Realizar cálculos
-    const lambdaE = arrivalRate / numServers; /// cantidad de promedio de llegadas al sistema
-    const utilization = lambdaE / serviceRate; //esto oculte 
-    //const utilization = arrivalRate/serviceRate;
-    //const L = arrivalRate/serviceRate-arrivalRate;
-    const L = lambdaE / (1 - utilization); // modifique lambdaE por utilization
-    const W = L / lambdaE;
-    const Lq = (utilization * utilization) / (1 - utilization);
-    const Wq = Lq / lambdaE;
+    // Calcular utilización del sistema (rho)
+    const rho = (arrivalRate / (serviceRate * numServers));
 
-    // Calcular el costo total
-    const totalCost = (costPerServer * numServers) + (waitingCost * Lq);
+    // Calcular probabilidad de encontrar el sistema vacío (P0)
+    const P0 = 1 / calculateSum(rho, numServers);
 
-    // Métricas adicionales
-    const rho = utilization; // Factor de Utilización
-    const P0 = 1 / (1 + (Lq / numServers)); // Probabilidad de encontrar el sistema vacío
-    const P1 = (utilization ** numServers) * (1 - utilization); // Probabilidad de encontrar 1 cliente en el sistema
+    // Calcular número promedio de procesos en la cola (Lq)
+    const Lq = (P0 * Math.pow((arrivalRate / serviceRate), numServers) * rho) /
+               (factorial(numServers) * Math.pow((1 - rho), 2));
+
+     
+ 
+ 
+
+
+
+    // Calcular tiempo promedio que un proceso pasa en la cola (Wq)
+    const Wq = Lq / arrivalRate;
+
+    // Calcular tiempo promedio que un proceso pasa en el sistema (W)
+    const W = Wq + 1/serviceRate;
+    const L = (arrivalRate * W) / (1 - rho)*0.1;
 
     // Mostrar resultados en modal
     displayResults(`
         <h3>Resultados:</h3>
-        <p>Utilización del sistema (ρ): ${rho.toFixed(2)}</p>
+        <p>Utilización del sistema (ρ): ${rho.toFixed(4)}</p>
         <p>Probabilidad de encontrar el sistema vacío (P₀): ${P0.toFixed(4)}</p>
-        <p>Probabilidad de encontrar 1 cliente en el sistema (P₁): ${P1.toFixed(4)}</p>
-        <p>Número promedio de procesos en la cola (Lq): ${Lq.toFixed(2)}</p>
-        <p>Número promedio de procesos en el sistema (L): ${L.toFixed(2)}</p>
-        <p>Tiempo promedio que un proceso pasa en la cola (Wq): ${Wq.toFixed(2)} horas</p>
-        <p>Tiempo promedio que unproceso pasa en el sistema (W): ${W.toFixed(2)} horas</p>
-        <p>Costo total del sistema: $${totalCost.toFixed(2)}</p>
+        <p>Número promedio de procesos en la cola (Lq): ${Lq.toFixed(4)}</p>
+        <p>Número promedio de procesos en el sistema (L): ${L.toFixed(4)}</p>
+        <p>Tiempo promedio que un proceso pasa en la cola (Wq): ${Wq.toFixed(4)} horas</p>
+        <p>Tiempo promedio que un proceso pasa en el sistema (W): ${W.toFixed(4)} horas</p>
     `);
-    // error en lq
-    // error en wp 
-    // error en w   
+}
+
+function calculateSum(rho, numServers) {
+    let sum = 0;
+    for (let k = 0; k < numServers; k++) {
+        sum += Math.pow(rho * numServers, k) / factorial(k);
+    }
+    sum += Math.pow(rho * numServers, numServers) / (factorial(numServers) * (1 - rho));
+    return sum;
+}
+
+function factorial(n) {
+    if (n === 0 || n === 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
 }
 
 function displayResults(resultMessage) {
